@@ -22,7 +22,14 @@
                 [((NSMutableArray *)self.profiles) addObject:[[Profile alloc] initWithJSONDictionary:_]];
             
         }
- 
+        
+        self.socksPort = (dictionary[@"socksPort"] != nil) ? [dictionary[@"socksPort"] integerValue] : 1080;
+        
+        self.socksBind = (dictionary[@"socksBind"] != nil) ? [dictionary[@"socksBind"] stringValue] : @"127.0.0.1";
+        
+        self.pacPort = (dictionary[@"pacPort"] != nil) ? [dictionary[@"pacPort"] integerValue] : 1080;
+        
+        self.pacBind = (dictionary[@"pacBind"] != nil) ? [dictionary[@"pacBind"] stringValue] : @"127.0.0.1";
     }
     return self;
 }
@@ -45,8 +52,12 @@
 
     NSMutableDictionary *dictionary = [[NSMutableDictionary alloc] init];
 
- 
+    
     dictionary[@"current"] = @(self.current);
+    dictionary[@"pacBind"] = self.pacBind;
+    dictionary[@"pacPort"] = @(self.pacPort);
+    dictionary[@"socksBind"] = self.socksBind;
+    dictionary[@"socksPort"] = @(self.socksPort);
   
     {
         NSMutableArray *_ = [[NSMutableArray alloc] init];

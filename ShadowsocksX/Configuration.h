@@ -12,6 +12,15 @@
 - (NSData *)JSONData;
 
 
+
+@property (nonatomic, copy) NSString* socksBind;
+
+@property (nonatomic, assign) NSInteger socksPort;
+
+@property (nonatomic, copy) NSString* pacBind;
+
+@property (nonatomic, assign) NSInteger pacPort;
+
 @property (nonatomic, assign) NSInteger current;
 
 @property (nonatomic, strong) NSArray * profiles;

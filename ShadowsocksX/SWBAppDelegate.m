@@ -9,6 +9,7 @@
 #import "GZIP.h"
 #import "SWBConfigWindowController.h"
 #import "SWBQRCodeWindowController.h"
+#import "SWBSettingsWindowController.h"
 #import "SWBAppDelegate.h"
 #import "GCDWebServer.h"
 #import "ShadowsocksRunner.h"
@@ -20,6 +21,7 @@
 #define kSysconfVersion @"1.0.0"
 
 @implementation SWBAppDelegate {
+    SWBSettingsWindowController *settingsWindowController;
     SWBConfigWindowController *configWindowController;
     SWBQRCodeWindowController *qrCodeWindowController;
     NSMenuItem *statusMenuItem;
@@ -90,6 +92,7 @@ static SWBAppDelegate *appDelegate;
 
     [menu addItem:[NSMenuItem separatorItem]];
     [menu addItemWithTitle:_L(Edit PAC for Auto Proxy Mode...) action:@selector(editPAC) keyEquivalent:@""];
+    [menu addItemWithTitle:_L(Settings...) action:@selector(editSettings) keyEquivalent:@""];
     qrCodeMenuItem = [[NSMenuItem alloc] initWithTitle:_L(Show QR Code...) action:@selector(showQRCode) keyEquivalent:@""];
     [menu addItem:qrCodeMenuItem];
     [menu addItemWithTitle:_L(Show Logs...) action:@selector(showLogs) keyEquivalent:@""];
@@ -234,6 +237,14 @@ void onPACChange(
     );
     FSEventStreamScheduleWithRunLoop(fsEventStream, [[NSRunLoop mainRunLoop] getCFRunLoop], (__bridge CFStringRef)NSDefaultRunLoopMode);
     FSEventStreamStart(fsEventStream);
+}
+
+
+- (void)editSettings {
+    settingsWindowController = [[SWBSettingsWindowController alloc] initWithWindowNibName:@"Settings"];
+    [settingsWindowController showWindow:self];
+    [NSApp activateIgnoringOtherApps:YES];
+    [settingsWindowController.window makeKeyAndOrderFront:nil];
 }
 
 - (void)editPAC {

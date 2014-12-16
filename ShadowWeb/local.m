@@ -598,7 +598,7 @@ int local_main (const char* addr, const char* port)
 static void timmer_cb(EV_P_ ev_timer* timmer, int revents)
 {
     struct listen_ctx* data = ev_userdata(loop);
-    NSLog(@"%d, %d", (int)data, (int)data->stop);
+    //NSLog(@"%d, %d", (int)data, (int)data->stop);
     if (data->stop) {
         ev_io_stop(loop, &data->io);
         ev_timer_stop(loop, timmer);

@@ -15,6 +15,10 @@
     if (self) {
  
         self.current = (dictionary[@"current"] != [NSNull null]) ? [dictionary[@"current"] integerValue] : 0;
+        self.socksPort = (dictionary[@"socksPort"] != [NSNull null]) ? [dictionary[@"socksPort"] integerValue] : 1080;
+        self.socksBind = (dictionary[@"socksBind"] != [NSNull null]) ? dictionary[@"socksBind"] : @"127.0.0.1";
+        self.pacPort = (dictionary[@"pacPort"] != [NSNull null]) ? [dictionary[@"pacPort"] integerValue] : 1080;
+        self.pacBind = (dictionary[@"pacBind"] != [NSNull null]) ? dictionary[@"pacBind"] : @"127.0.0.1";
   
         self.profiles = [[NSMutableArray alloc] initWithCapacity:16];
         for (NSDictionary *_ in dictionary[@"profiles"]) {
@@ -22,14 +26,6 @@
                 [((NSMutableArray *)self.profiles) addObject:[[Profile alloc] initWithJSONDictionary:_]];
             
         }
-        
-        self.socksPort = (dictionary[@"socksPort"] != nil) ? [dictionary[@"socksPort"] integerValue] : 1080;
-        
-        self.socksBind = (dictionary[@"socksBind"] != nil) ? [dictionary[@"socksBind"] stringValue] : @"127.0.0.1";
-        
-        self.pacPort = (dictionary[@"pacPort"] != nil) ? [dictionary[@"pacPort"] integerValue] : 1080;
-        
-        self.pacBind = (dictionary[@"pacBind"] != nil) ? [dictionary[@"pacBind"] stringValue] : @"127.0.0.1";
     }
     return self;
 }

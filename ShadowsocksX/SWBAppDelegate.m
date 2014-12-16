@@ -18,7 +18,7 @@
 #define kShadowsocksIsRunningKey @"ShadowsocksIsRunning"
 #define kShadowsocksRunningModeKey @"ShadowsocksMode"
 #define kShadowsocksHelper @"/Library/Application Support/ShadowsocksX/shadowsocks_sysconf"
-#define kSysconfVersion @"1.0.0"
+#define kSysconfVersion @"1.0.0-1"
 
 @implementation SWBAppDelegate {
     SWBSettingsWindowController *settingsWindowController;
@@ -36,6 +36,7 @@
     FSEventStreamRef fsEventStream;
     NSString *configPath;
     NSString *PACPath;
+    GCDWebServer *webServer;
 }
 
 static SWBAppDelegate *appDelegate;
@@ -50,14 +51,13 @@ static SWBAppDelegate *appDelegate;
     });
 
     originalPACData = [[NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"proxy" withExtension:@"pac.gz"]] gunzippedData];
-    GCDWebServer *webServer = [[GCDWebServer alloc] init];
+    webServer = [[GCDWebServer alloc] init];
     [webServer addHandlerForMethod:@"GET" path:@"/proxy.pac" requestClass:[GCDWebServerRequest class] processBlock:^GCDWebServerResponse *(GCDWebServerRequest *request) {
         return [GCDWebServerDataResponse responseWithData:[self PACData] contentType:@"application/x-ns-proxy-autoconfig"];
     }
     ];
 
-    [webServer startWithPort:8090 bonjourName:@"webserver"];
-
+    
     self.item = [[NSStatusBar systemStatusBar] statusItemWithLength:20];
     NSImage *image = [NSImage imageNamed:@"menu_icon"];
     [image setTemplate:YES];
@@ -174,12 +174,18 @@ static SWBAppDelegate *appDelegate;
         NSImage *image = [NSImage imageNamed:@"menu_icon"];
         [image setTemplate:YES];
         self.item.image = image;
+        if(![webServer isRunning]){
+            [webServer startWithPort:[[ProfileManager configuration] pacPort] bonjourName:@"webserver"];
+        }
     } else {
         statusMenuItem.title = _L(Shadowsocks: Off);
         enableMenuItem.title = _L(Turn Shadowsocks On);
         NSImage *image = [NSImage imageNamed:@"menu_icon_disabled"];
         [image setTemplate:YES];
         self.item.image = image;
+        if([webServer isRunning]){
+            [webServer stop];
+        }
     }
     
     if ([runningMode isEqualToString:@"auto"]) {
@@ -306,8 +312,14 @@ void onPACChange(
 
 - (void)runProxy {
     [ShadowsocksRunner reloadConfig];
+    BOOL success = NO;
+    NSString * addr = nil;
+    NSInteger port = 0;
     for (; ;) {
-        if ([ShadowsocksRunner runProxy]) {
+        Configuration* config = [ProfileManager configuration];
+        addr = config.socksBind;
+        port = config.socksPort;
+        if ([ShadowsocksRunner runProxy:addr port:port]) {
             sleep(1);
         } else {
             sleep(2);
@@ -405,7 +417,7 @@ void onPACChange(
     // this log is very important
     NSLog(@"run shadowsocks helper: %@", kShadowsocksHelper);
     NSArray *arguments;
-    arguments = [NSArray arrayWithObjects:param, nil];
+    arguments = [NSArray arrayWithObjects:param,[NSString stringWithFormat:@"%d", (int)[[ProfileManager configuration] pacPort]], nil];
     [task setArguments:arguments];
 
     NSPipe *stdoutpipe;

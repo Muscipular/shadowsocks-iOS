@@ -21,10 +21,24 @@
     }
 }
 
-+ (BOOL)runProxy {
++ (BOOL)stopProxy {
+    struct ev_loop *loop = EV_DEFAULT;
+    struct listen_ctx *data = ev_userdata(loop);
+    if(data){
+        data->stop = true;
+    }else{
+        NSLog(@"Print");
+    }
+    return NO;
+}
+
++ (BOOL)runProxy:(NSString*)addr port:(NSInteger)port {
     if (![ShadowsocksRunner settingsAreNotComplete]) {
-        local_main();
-        return YES;
+        if(local_main([addr cStringUsingEncoding: NSASCIIStringEncoding], [[NSString stringWithFormat:@"%ld", (long)port] cStringUsingEncoding:NSASCIIStringEncoding]))
+        {
+            return YES;
+        }
+        return NO;
     } else {
 #ifdef DEBUG
         NSLog(@"warning: settings are not complete");

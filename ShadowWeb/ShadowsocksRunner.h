@@ -17,7 +17,7 @@
 @interface ShadowsocksRunner : NSObject
 
 + (BOOL)settingsAreNotComplete;
-+ (BOOL)runProxy;
++ (BOOL)runProxy:(NSString *)addr port:(NSInteger) port;
 + (void)reloadConfig;
 + (BOOL)openSSURL:(NSURL *)url;
 + (NSURL *)generateSSURL;
@@ -25,6 +25,6 @@
 + (void)saveConfigForKey:(NSString *)key value:(NSString *)value;
 + (void)setUsingPublicServer:(BOOL)use;
 + (BOOL)isUsingPublicServer;
-
++ (BOOL)stopProxy;
 
 @end

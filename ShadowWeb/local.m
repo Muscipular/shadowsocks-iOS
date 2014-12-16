@@ -22,7 +22,7 @@ int setnonblocking(int fd) {
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
-int create_and_bind(const char *port) {
+int create_and_bind(const char * bindAddr,const char *port) {
     struct addrinfo hints;
     struct addrinfo *result, *rp;
     int s, listen_sock = 0;
@@ -31,7 +31,7 @@ int create_and_bind(const char *port) {
     hints.ai_family = AF_UNSPEC; /* Return IPv4 and IPv6 choices */
     hints.ai_socktype = SOCK_STREAM; /* We want a TCP socket */
 
-    s = getaddrinfo("127.0.0.1", port, &hints, &result);
+    s = getaddrinfo(bindAddr, port, &hints, &result);
     if (s != 0) {
         NSLog(@"getaddrinfo: %s", gai_strerror(s));
         return -1;
@@ -561,10 +561,10 @@ void set_config(const char *server, const char *remote_port, const char* passwor
     config_encryption(password, method);
 }
 
-int local_main ()
+int local_main (const char* addr, const char* port)
 {
     int listenfd;
-    listenfd = create_and_bind("1080");
+    listenfd = create_and_bind(addr, port);
     if (listenfd < 0) {
 #ifdef DEBUG
         NSLog(@"bind() error..");
@@ -576,16 +576,37 @@ int local_main ()
         return 1;
     }
 #ifdef DEBUG
-    NSLog(@"server listening at port %s\n", "1080");
+    NSLog(@"server listening at %s:%s\n", addr, port);
 #endif
 
     setnonblocking(listenfd);
     struct listen_ctx listen_ctx;
     listen_ctx.fd = listenfd;
+    listen_ctx.stop = 0;
     struct ev_loop *loop = EV_DEFAULT;
     ev_io_init (&listen_ctx.io, accept_cb, listenfd, EV_READ);
     ev_io_start (loop, &listen_ctx.io);
+    struct ev_timer timmer;
+    ev_timer_init(&timmer, timmer_cb, 1., 1.);
+    ev_timer_start(loop, &timmer);
+    ev_set_userdata(loop, &listen_ctx);
     ev_run (loop, 0);
+    
     return 0;
 }
+
+static void timmer_cb(EV_P_ ev_timer* timmer, int revents)
+{
+    struct listen_ctx* data = ev_userdata(loop);
+    NSLog(@"%d, %d", (int)data, (int)data->stop);
+    if (data->stop) {
+        ev_io_stop(loop, &data->io);
+        ev_timer_stop(loop, timmer);
+        ev_set_userdata(loop, 0);
+        ev_break(loop, EVBREAK_ONE);
+        shutdown(data->fd, SHUT_RDWR);
+        close(data->fd);
+    }
+}
+
 

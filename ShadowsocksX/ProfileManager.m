@@ -57,6 +57,7 @@
 
 + (void)reloadShadowsocksRunner {
     Configuration *configuration = [ProfileManager configuration];
+    //[ShadowsocksRunner stopProxy];
     if (configuration.current == -1) {
         [ShadowsocksRunner setUsingPublicServer:YES];
         [ShadowsocksRunner reloadConfig];

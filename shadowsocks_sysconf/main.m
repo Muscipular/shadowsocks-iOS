@@ -9,20 +9,29 @@
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 
-#define VERSION @"1.0.0"
+#define VERSION @"1.0.0-1"
 
 int main(int argc, const char * argv[])
 {
-    if (argc != 2) {
-        printf("usage: shadowsocks_sysconf off/auto/global\n");
+    if (argc < 2) {
+        printf("usage: shadowsocks_sysconf off/auto/global [port]\n");
         return 1;
     }
     @autoreleasepool {
         NSString *mode = [NSString stringWithUTF8String:argv[1]];
         
+        int port = 8090;
+        if (argc >= 3)
+        {
+            NSNumber* n = [[[NSNumberFormatter alloc] init] numberFromString:[NSString stringWithUTF8String:argv[2]]];
+            if(n != nil){
+                port = [n intValue];
+            }
+        }
+        
         NSSet *support_args = [NSSet setWithObjects:@"off", @"auto", @"global", @"-v", nil];
         if (![support_args containsObject:mode]) {
-            printf("usage: shadowsocks_sysconf off/auto/global\n");
+            printf("usage: shadowsocks_sysconf off/auto/global [port]\n");
             return 1;
         }
         
@@ -65,7 +74,7 @@ int main(int argc, const char * argv[])
                     
                     if ([mode isEqualToString:@"auto"]) {
 
-                        [proxies setObject:@"http://127.0.0.1:8090/proxy.pac" forKey:(NSString *)kCFNetworkProxiesProxyAutoConfigURLString];
+                        [proxies setObject:[NSString stringWithFormat:@"http://127.0.0.1:%d/proxy.pac", port] forKey:(NSString *)kCFNetworkProxiesProxyAutoConfigURLString];
                         [proxies setObject:[NSNumber numberWithInt:1] forKey:(NSString *)kCFNetworkProxiesProxyAutoConfigEnable];
                         
                     } else if ([mode isEqualToString:@"global"]) {

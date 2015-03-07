@@ -19,6 +19,9 @@
 [submodule "Masonry"]
 	path = Masonry
 	url = git@github.com:Masonry/Masonry.git
+[submodule "libsodium-darwin-build"]
+	path = libsodium-darwin-build
+	url = git@github.com:damiancarrillo/libsodium-darwin-build.git
 [submodule "AFNetworking"]
 	path = AFNetworking
 	url = git@github.com:AFNetworking/AFNetworking.git

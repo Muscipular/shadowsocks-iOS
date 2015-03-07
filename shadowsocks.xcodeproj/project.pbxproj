@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		264754F41AAB3D780097B665 /* libsodium.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 264754F31AAB3D780097B665 /* libsodium.a */; };
+		264754F51AAB416C0097B665 /* libsodium.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 264754F31AAB3D780097B665 /* libsodium.a */; };
 		6205309618D4443E00887D3E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 621571AA16CF6BCB003D96B4 /* Foundation.framework */; };
 		6205309918D4443E00887D3E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6205309818D4443E00887D3E /* main.m */; };
 		620530A518D4444E00887D3E /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 629AC93F18B49C33001D2771 /* SystemConfiguration.framework */; };
@@ -226,6 +228,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		264754B91AAB355A0097B665 /* libsodium-osx.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libsodium-osx.a"; path = "libsodium-darwin-build/libsodium-osx.a"; sourceTree = "<group>"; };
+		264754F31AAB3D780097B665 /* libsodium.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsodium.a; path = "libsodium-darwin-build/build/MacOSX-x86_64/lib/libsodium.a"; sourceTree = "<group>"; };
 		6205309518D4443E00887D3E /* shadowsocks_sysconf */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = shadowsocks_sysconf; sourceTree = BUILT_PRODUCTS_DIR; };
 		6205309818D4443E00887D3E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		6205309B18D4443E00887D3E /* shadowsocks_sysconf-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "shadowsocks_sysconf-Prefix.pch"; sourceTree = "<group>"; };
@@ -480,6 +484,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				264754F51AAB416C0097B665 /* libsodium.a in Frameworks */,
 				62E27E5C18C1D0F90086033D /* libz.dylib in Frameworks */,
 				6274847518B1FD9B00A9CDF0 /* libZXingObjC-iOS.a in Frameworks */,
 				6274847418B1FD7900A9CDF0 /* ImageIO.framework in Frameworks */,
@@ -513,6 +518,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				264754F41AAB3D780097B665 /* libsodium.a in Frameworks */,
 				628C91C61A07B6C800BA1566 /* QuartzCore.framework in Frameworks */,
 				62E27E5E18C1D1000086033D /* libz.dylib in Frameworks */,
 				627A6E3F18B47F5400493BBC /* libcrypto.dylib in Frameworks */,
@@ -570,6 +576,8 @@
 		621571A716CF6BCB003D96B4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				264754F31AAB3D780097B665 /* libsodium.a */,
+				264754B91AAB355A0097B665 /* libsodium-osx.a */,
 				62E2E19A1A5AB23700C9A2E1 /* Security.framework */,
 				62E2E1981A5AB21E00C9A2E1 /* SystemConfiguration.framework */,
 				628C91C51A07B6C800BA1566 /* QuartzCore.framework */,
@@ -1397,6 +1405,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/OpenSSL-for-iPhone/include/";
 				INSTALL_PATH = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1422,6 +1431,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/OpenSSL-for-iPhone/include/";
 				INSTALL_PATH = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1506,19 +1516,20 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)\"",
+					"$(SRCROOT)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ShadowWeb/shadowsocks-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
-					"OpenSSL-for-iPhone/include/",
+					"$(PROJECT_DIR)/OpenSSL-for-iPhone/include/",
 					"./zxing-objc/**",
 				);
 				INFOPLIST_FILE = "ShadowWeb/shadowsocks-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/OpenSSL-for-iPhone/lib\"",
+					"$(SRCROOT)/OpenSSL-for-iPhone/lib",
+					"$(PROJECT_DIR)/libsodium-darwin-build/build/MacOSX-x86_64/lib",
 				);
 				PRODUCT_NAME = shadowsocks;
 				PROVISIONING_PROFILE = "";
@@ -1534,23 +1545,24 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)\"",
+					"$(SRCROOT)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ShadowWeb/shadowsocks-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
-					"OpenSSL-for-iPhone/include/",
+					"$(PROJECT_DIR)/OpenSSL-for-iPhone/include/",
 					"./zxing-objc/**",
 				);
 				INFOPLIST_FILE = "ShadowWeb/shadowsocks-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/OpenSSL-for-iPhone/lib\"",
+					"$(SRCROOT)/OpenSSL-for-iPhone/lib",
+					"$(PROJECT_DIR)/libsodium-darwin-build/build/MacOSX-x86_64/lib",
 				);
 				PRODUCT_NAME = shadowsocks;
 				PROVISIONING_PROFILE = "10B86086-082B-4967-8900-EDF458793F84";
@@ -1565,14 +1577,19 @@
 				DSTROOT = /tmp/libshadowsocks.dst;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)\"",
+					"$(SRCROOT)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ShadowWeb/shadowsocks-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/OpenSSL-for-iPhone/include/",
+					"$(PROJECT_DIR)/libsodium-darwin-build/build/MacOSX-x86_64/include",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/OpenSSL-for-iPhone/lib\"",
+					"$(SRCROOT)/OpenSSL-for-iPhone/lib",
+					"$(PROJECT_DIR)/libsodium-darwin-build/build/MacOSX-x86_64/lib",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = shadowsocks;
@@ -1587,14 +1604,19 @@
 				DSTROOT = /tmp/libshadowsocks.dst;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)\"",
+					"$(SRCROOT)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ShadowWeb/shadowsocks-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/OpenSSL-for-iPhone/include/",
+					"$(PROJECT_DIR)/libsodium-darwin-build/build/MacOSX-x86_64/include",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/OpenSSL-for-iPhone/lib\"",
+					"$(SRCROOT)/OpenSSL-for-iPhone/lib",
+					"$(PROJECT_DIR)/libsodium-darwin-build/build/MacOSX-x86_64/lib",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = shadowsocks;
@@ -1609,7 +1631,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1626,10 +1648,20 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/OpenSSL-for-iPhone/include/",
+					"$(PROJECT_DIR)/libsodium-darwin-build/build/MacOSX-x86_64/include/",
+				);
 				INFOPLIST_FILE = "ShadowsocksX/ShadowsocksX-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/libsodium-darwin-build/build/MacOSX-x86_64/lib/",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1641,7 +1673,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -1656,10 +1688,20 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/OpenSSL-for-iPhone/include/",
+					"$(PROJECT_DIR)/libsodium-darwin-build/build/MacOSX-x86_64/include/",
+				);
 				INFOPLIST_FILE = "ShadowsocksX/ShadowsocksX-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/libsodium-darwin-build/build/MacOSX-x86_64/lib/",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

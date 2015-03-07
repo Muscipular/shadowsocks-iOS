@@ -57,7 +57,7 @@ static SWBAppDelegate *appDelegate;
     }
     ];
 
-    [webServer startWithPort:8090 bonjourName:@"webserver"];
+    [webServer startWithPort:18090 bonjourName:@"webserver"];
 
     manager = [AFHTTPRequestOperationManager manager];
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];

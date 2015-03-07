@@ -29,9 +29,9 @@ void polipo_exit();
 - (void)updateProxyMode {
     NSString *proxyMode = [[NSUserDefaults standardUserDefaults] objectForKey:kProxyModeKey];
     if (proxyMode == nil || [proxyMode isEqualToString:@"pac"]) {
-        [AppProxyCap setPACURL:@"http://127.0.0.1:8090/proxy.pac"];
+        [AppProxyCap setPACURL:@"http://127.0.0.1:18090/proxy.pac"];
     } else if ([proxyMode isEqualToString:@"global"]) {
-        [AppProxyCap setProxy:AppProxy_SOCKS Host:@"127.0.0.1" Port:1080];
+        [AppProxyCap setProxy:AppProxy_SOCKS Host:@"127.0.0.1" Port:10801];
     } else{
         [AppProxyCap setNoProxy];
     }
@@ -70,7 +70,7 @@ void polipo_exit();
     ];
 
 
-    [webServer startWithPort:8090 bonjourName:@"webserver"];
+    [webServer startWithPort:18090 bonjourName:@"webserver"];
 //    dispatch_queue_t web = dispatch_queue_create("web", NULL);
 //    dispatch_async(web, ^{
 //        @try {
@@ -191,7 +191,7 @@ void polipo_exit();
             "-c",
             (char*)[configuration UTF8String],
             "proxyAddress=127.0.0.1",
-            (char*)[[NSString stringWithFormat:@"proxyPort=%d", 8081] UTF8String],
+            (char*)[[NSString stringWithFormat:@"proxyPort=%d", 18081] UTF8String],
         };
         polipo_main(5, args);
         NSLog(@"http proxy stop");
@@ -209,7 +209,7 @@ void polipo_exit();
             "-c",
             (char*)[configuration UTF8String],
             "proxyAddress=0.0.0.0",
-            (char*)[[NSString stringWithFormat:@"proxyPort=%d", 8081] UTF8String],
+            (char*)[[NSString stringWithFormat:@"proxyPort=%d", 18081] UTF8String],
         };
         polipo_main(5, args);
         NSLog(@"http proxy stop");

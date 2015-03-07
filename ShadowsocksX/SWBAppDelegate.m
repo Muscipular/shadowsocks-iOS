@@ -13,6 +13,7 @@
 #import "GCDWebServer.h"
 #import "ShadowsocksRunner.h"
 #import "ProfileManager.h"
+#import "AFNetworking.h"
 
 #define kShadowsocksIsRunningKey @"ShadowsocksIsRunning"
 #define kShadowsocksRunningModeKey @"ShadowsocksMode"
@@ -34,6 +35,8 @@
     FSEventStreamRef fsEventStream;
     NSString *configPath;
     NSString *PACPath;
+    NSString *userRulePath;
+    AFHTTPRequestOperationManager *manager;
 }
 
 static SWBAppDelegate *appDelegate;
@@ -55,6 +58,9 @@ static SWBAppDelegate *appDelegate;
     ];
 
     [webServer startWithPort:8090 bonjourName:@"webserver"];
+
+    manager = [AFHTTPRequestOperationManager manager];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
 
     self.item = [[NSStatusBar systemStatusBar] statusItemWithLength:20];
     NSImage *image = [NSImage imageNamed:@"menu_icon"];
@@ -90,8 +96,13 @@ static SWBAppDelegate *appDelegate;
 
     [menu addItem:[NSMenuItem separatorItem]];
     [menu addItemWithTitle:_L(Edit PAC for Auto Proxy Mode...) action:@selector(editPAC) keyEquivalent:@""];
-    qrCodeMenuItem = [[NSMenuItem alloc] initWithTitle:_L(Show QR Code...) action:@selector(showQRCode) keyEquivalent:@""];
+    [menu addItemWithTitle:_L(Update PAC from GFWList) action:@selector(updatePACFromGFWList) keyEquivalent:@""];
+    [menu addItemWithTitle:_L(Edit User Rule for GFWList...) action:@selector(editUserRule) keyEquivalent:@""];
+    [menu addItem:[NSMenuItem separatorItem]];
+    qrCodeMenuItem = [[NSMenuItem alloc] initWithTitle:_L(Generate QR Code...) action:@selector(showQRCode) keyEquivalent:@""];
     [menu addItem:qrCodeMenuItem];
+    [menu addItem:[[NSMenuItem alloc] initWithTitle:_L(Scan QR Code from Screen...) action:@selector(scanQRCode) keyEquivalent:@""]];
+    [menu addItem:[NSMenuItem separatorItem]];
     [menu addItemWithTitle:_L(Show Logs...) action:@selector(showLogs) keyEquivalent:@""];
     [menu addItemWithTitle:_L(Help) action:@selector(showHelp) keyEquivalent:@""];
     [menu addItem:[NSMenuItem separatorItem]];
@@ -105,6 +116,7 @@ static SWBAppDelegate *appDelegate;
 
     configPath = [NSString stringWithFormat:@"%@/%@", NSHomeDirectory(), @".ShadowsocksX"];
     PACPath = [NSString stringWithFormat:@"%@/%@", configPath, @"gfwlist.js"];
+    userRulePath = [NSString stringWithFormat:@"%@/%@", configPath, @"user-rule.txt"];
     [self monitorPAC:configPath];
     appDelegate = self;
 }
@@ -152,7 +164,13 @@ static SWBAppDelegate *appDelegate;
     }
     [serversMenu addItem:publicItem];
     for (Profile *profile in configuration.profiles) {
-        NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:profile.server action:@selector(chooseServer:) keyEquivalent:@""];
+        NSString *title;
+        if (profile.remarks.length) {
+            title = [NSString stringWithFormat:@"%@ (%@:%d)", profile.remarks, profile.server, (int)profile.serverPort];
+        } else {
+            title = [NSString stringWithFormat:@"%@:%d", profile.server, (int)profile.serverPort];
+        }
+        NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:title action:@selector(chooseServer:) keyEquivalent:@""];
         item.tag = i;
         if (i == configuration.current) {
             [item setState:1];
@@ -248,6 +266,20 @@ void onPACChange(
     
     NSArray *fileURLs = @[[NSURL fileURLWithPath:PACPath]];
     [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
+}
+
+
+- (void)editUserRule {
+  
+  if (![[NSFileManager defaultManager] fileExistsAtPath:userRulePath]) {
+    NSError *error = nil;
+    [[NSFileManager defaultManager] createDirectoryAtPath:configPath withIntermediateDirectories:NO attributes:nil error:&error];
+    // TODO check error
+    [@"! Put user rules line by line in this file.\n! See https://adblockplus.org/en/filter-cheatsheet\n" writeToFile:userRulePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
+  }
+  
+  NSArray *fileURLs = @[[NSURL fileURLWithPath:userRulePath]];
+  [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
 }
 
 - (void)showQRCode {
@@ -425,7 +457,54 @@ void onPACChange(
     if (string.length > 0) {
         NSLog(@"%@", string);
     }
+}
 
+- (void)updatePACFromGFWList {
+    [manager GET:@"https://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt" parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        // Objective-C is bullshit
+        NSData *data = responseObject;
+        NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSData *data2 = [[NSData alloc] initWithBase64Encoding:str];
+        if (!data2) {
+            NSLog(@"can't decode base64 string");
+            return;
+        }
+        // Objective-C is bullshit
+        NSString *str2 = [[NSString alloc] initWithData:data2 encoding:NSUTF8StringEncoding];
+        NSArray *lines = [str2 componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+        
+        NSString *str3 = [[NSString alloc] initWithContentsOfFile:userRulePath encoding:NSUTF8StringEncoding error:nil];
+        if (str3) {
+            NSArray *rules = [str3 componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+            lines = [lines arrayByAddingObjectsFromArray:rules];
+        }
+        
+        NSMutableArray *filtered = [[NSMutableArray alloc] init];
+        for (NSString *line in lines) {
+            if ([line length] > 0) {
+                unichar s = [line characterAtIndex:0];
+                if (s == '!' || s == '[') {
+                    continue;
+                }
+                [filtered addObject:line];
+            }
+        }
+        // Objective-C is bullshit
+        NSError *error = nil;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:filtered options:NSJSONWritingPrettyPrinted error:&error];
+        NSString *rules = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        NSData *data3 = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"abp" withExtension:@"js"]];
+        NSString *template = [[NSString alloc] initWithData:data3 encoding:NSUTF8StringEncoding];
+        NSString *result = [template stringByReplacingOccurrencesOfString:@"__RULES__" withString:rules];
+        [[result dataUsingEncoding:NSUTF8StringEncoding] writeToFile:PACPath atomically:YES];
+        NSAlert *alert = [[NSAlert alloc] init];
+        alert.messageText = @"Updated";
+        [alert runModal];
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error: %@", error);
+        NSAlert *alert = [NSAlert alertWithError:error];
+        [alert runModal];
+    }];
 }
 
 - (void)handleURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent {
